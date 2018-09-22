@@ -3,7 +3,7 @@
 **killswitch.sh** - Forces traffic through VPN thanks to UFW.  
 
 You can use this killswitch on your **VPS** to avoid some network leakage if your VPN shuts down.  
-It will save your user rules, add the route to keep your remote SSH, set up a DNS server, and allow traffic only to your VPN server.  
+It will save your UFW user rules, add the route to keep your remote SSH up, set up a DNS server, and allow traffic only to your VPN server.  
 
 Example:
 ```
@@ -16,3 +16,5 @@ Options:
  - **-i**: [vpn server ip]:[remote port]:[protocol]
  - **-d**: [dns ip] - update /etc/resolv.conf
  - **-s**: add the route to keep remote SSH
+
+[![asciicast](https://asciinema.org/a/Mkhc2TXZwXmYd93Gw8NS5pZg3.png)](https://asciinema.org/a/Mkhc2TXZwXmYd93Gw8NS5pZg3)
