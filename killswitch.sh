@@ -90,7 +90,7 @@ start)
     ufw allow in on tun0
     ufw allow out on tun0
 
-    echo "[*] allowing all vpn gateway ip addresses"
+    echo "[*] allowing vpn gateway ip address"
     # allow vpn ip address
     for array in ${IPS_ARRAY[@]}
     do
