@@ -139,8 +139,6 @@ stop)
     ;;
 
 *)
-    echo "[!] Usage: $0 {start|stop}"
-    exit 1
-
+    help
     ;;
 esac
