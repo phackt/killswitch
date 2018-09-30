@@ -6,11 +6,12 @@ OVPN_FILE=""
 DNS_SERVER=""
 SSH_RULE=0
 SCRIPT_DIR=$(dirname $(readlink -f $0))
+ALLOW_SSH=0
 
 # Displays help
 function help(){
-    echo "[!] Usage: $0 {start|stop} [-i <ip:port:protocol>] [-d <dns_ip>] [-s <keeping ssh conn>]"
-    echo "[!] Example: $0 start -i 202.23.56.5:1198:udp -d 208.67.222.222 -s"
+    echo "[!] Usage: $0 {start|stop} [-i <ip:port:protocol>] [-d <dns_ip>] [-r (keep ssh conn)] [-s (allow ssh)]"
+    echo "[!] Example: $0 start -i 202.23.56.5:1198:udp -d 208.67.222.222 -r -s"
     echo "[!] Example: $0 stop"
     exit 1
 }
@@ -25,7 +26,7 @@ fi
 case "${1}" in
 start)
     shift
-    while getopts "i:d:s" OPT;do
+    while getopts "i:d:rs" OPT;do
         case "${OPT}" in
             i)
                 IPS_ARRAY+=(${OPTARG})
@@ -34,9 +35,13 @@ start)
                 echo "[*] DNS ip: ${OPTARG}"
                 DNS_SERVER="${OPTARG}"
                 ;;
-            s)
+            r)
                 echo "[*] Setting rules for remote SSH"
                 SSH_RULE=1
+                ;;
+            s)
+                echo "[*] Allowing SSH service"
+                ALLOW_SSH=1
                 ;;
             :)
                 echo -e "[!] Invalid option ${OPT}"
@@ -75,15 +80,19 @@ start)
 
     echo "[*] allowing lan traffic"
     # allow local traffic
-    ufw allow to 10.0.0.0/8
-    ufw allow in from 10.0.0.0/8
-    ufw allow to 172.16.0.0/12
-    ufw allow in from 172.16.0.0/12
-    ufw allow to 192.168.1.0/16
-    ufw allow in from 192.168.1.0/16
+    while read interface;
+    do
+        subnet=$(ip -o -f inet addr show ${interface} | awk '/scope global/ {print $4}')
+        ufw allow in on eth0 from ${subnet}
+        ufw allow out on eth0 from ${subnet}
+
+    done < <(ip addr | awk '/state UP/ {print $2}' | sed 's/.$//')
 
     # in case of VPS
-    ufw allow in 22/tcp
+    if [ ${ALLOW_SSH} -eq 1 ];
+    then
+        ufw allow ssh
+    fi
 
     echo "[*] allowing traffic over VPN interface tun0"
     # allow all traffic over VPN interface
