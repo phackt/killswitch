@@ -78,16 +78,6 @@ start)
         ip route add table 128 default via $(ip -4 route ls | grep default | grep -Po '(?<=via )(\S+)')
     fi
 
-    echo "[*] allowing lan traffic"
-    # allow local traffic
-    while read interface;
-    do
-        subnet=$(ip -o -f inet addr show ${interface} | awk '/scope global/ {print $4}')
-        ufw allow in on eth0 from ${subnet}
-        ufw allow out on eth0 from ${subnet}
-
-    done < <(ip addr | awk '/state UP/ {print $2}' | sed 's/.$//')
-
     # in case of VPS
     if [ ${ALLOW_SSH} -eq 1 ];
     then
