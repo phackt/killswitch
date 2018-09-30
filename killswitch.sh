@@ -2,10 +2,10 @@
 
 declare -a IPS_ARRAY
 
-UFW_ENABLED=0
 OVPN_FILE=""
 DNS_SERVER=""
 SSH_RULE=0
+SCRIPT_DIR=$(dirname $(readlink -f $0))
 
 # Displays help
 function help(){
@@ -49,8 +49,8 @@ start)
     ufw status | grep active &>/dev/null
     if [ $? -eq 0 ];
     then
-        UFW_ENABLED=1
         echo "[*] saving ufw rules"
+        touch "${SCRIPT_DIR}/.ufw_status" &> /dev/null
         cp /etc/ufw/user.rules /etc/ufw/user.rules.killswitch
         cp /etc/ufw/user6.rules /etc/ufw/user6.rules.killswitch
     fi
@@ -121,11 +121,12 @@ stop)
     ufw --force reset
     ufw disable
 
-    if [ ${UFW_ENABLED} -eq 1 ];
+    if [ -f "${SCRIPT_DIR}/.ufw_status" ];
     then
         echo "[*] restoring rules"
         cp /etc/ufw/user.rules.killswitch /etc/ufw/user.rules
         cp /etc/ufw/user6.rules.killswitch /etc/ufw/user6.rules
+        rm -f "${SCRIPT_DIR}/.ufw_status" &> /dev/null
         ufw enable
     fi
 
