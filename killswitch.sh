@@ -108,8 +108,8 @@ start)
         protocol=$(echo ${array} | cut -d: -f3)
 
         echo "[*] ufw allow in/out from/to $ip port $port $protocol"
-        ufw allow out to $ip port 1198 proto udp
-        ufw allow in from $ip port 1198 proto udp
+        ufw allow out to $ip port $port proto $protocol
+        ufw allow in from $ip port $port proto $protocol
     done        
 
     if [ "X" != "X${DNS_SERVER}" ];
