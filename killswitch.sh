@@ -73,8 +73,10 @@ start)
     if [ ${SSH_RULE} -eq 1 ];
     then
         echo "[*] allowing remote SSH"
-        ip rule add from $(ip route get 1 | grep -Po '(?<=src )(\S+)') table 128
-        ip route add table 128 to $(ip route get 1 | grep -Po '(?<=src )(\S+)')/32 dev $(ip -4 route ls | grep default | grep -Po '(?<=dev )(\S+)')
+        ip rule add table 128 from $(ip route get 1 | grep -Po '(?<=src )(\S+)')
+        interface=$(ip -4 route ls | grep default | grep -Po '(?<=dev )(\S+)')
+        mask=$(ip addr show ${interface} | grep 'inet ' | awk '{print $2}' | cut -d'/' -f2)
+        ip route add table 128 to $(ip route get 1 | grep -Po '(?<=src )(\S+)')/${mask} dev ${interface}
         ip route add table 128 default via $(ip -4 route ls | grep default | grep -Po '(?<=via )(\S+)')
     fi
 
