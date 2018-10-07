@@ -101,7 +101,10 @@ start)
 
         echo "[*] ufw allow in/out from/to $ip port $port $protocol"
         ufw allow out to $ip port $port proto $protocol
-        ufw allow in from $ip port $port proto $protocol
+
+        # finally allow every traffic from vpn server
+        # ufw allow in from $ip port $port proto $protocol
+        ufw allow in from $ip
     done        
 
     if [ "X" != "X${DNS_SERVER}" ];
